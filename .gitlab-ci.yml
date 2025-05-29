@@ -1,0 +1,107 @@
+# CI/CD Pipeline Configuration for Bonus Management System
+# .gitlab-ci.yml
+
+stages:
+  - test
+  - build
+  - deploy_staging
+  - deploy_production
+
+variables:
+  BACKEND_DIR: "bonus_app_backend"
+  FRONTEND_DIR: "bonus_frontend_app"
+  DOCKER_REGISTRY: "registry.example.com"
+  DOCKER_IMAGE_BACKEND: "registry.example.com/bonus-management/backend"
+  DOCKER_IMAGE_FRONTEND: "registry.example.com/bonus-management/frontend"
+
+# Backend Jobs
+backend_test:
+  stage: test
+  image: node:16-alpine
+  script:
+    - cd $BACKEND_DIR
+    - npm ci
+    - npm run lint
+    - npm test
+  only:
+    changes:
+      - $BACKEND_DIR/**/*
+
+backend_build:
+  stage: build
+  image: node:16-alpine
+  script:
+    - cd $BACKEND_DIR
+    - npm ci
+    - npm run build
+    - cp production.config.js config.js
+    - docker build -t $DOCKER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA
+    - if [ "$CI_COMMIT_BRANCH" = "main" ]; then docker tag $DOCKER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE_BACKEND:latest; docker push $DOCKER_IMAGE_BACKEND:latest; fi
+  only:
+    changes:
+      - $BACKEND_DIR/**/*
+  dependencies:
+    - backend_test
+
+# Frontend Jobs
+frontend_test:
+  stage: test
+  image: node:16-alpine
+  script:
+    - cd $FRONTEND_DIR
+    - npm ci
+    - npm run lint
+    - npm test
+  only:
+    changes:
+      - $FRONTEND_DIR/**/*
+
+frontend_build:
+  stage: build
+  image: node:16-alpine
+  script:
+    - cd $FRONTEND_DIR
+    - npm ci
+    - npm run build -- --prod
+    - docker build -t $DOCKER_IMAGE_FRONTEND:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_IMAGE_FRONTEND:$CI_COMMIT_SHORT_SHA
+    - if [ "$CI_COMMIT_BRANCH" = "main" ]; then docker tag $DOCKER_IMAGE_FRONTEND:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE_FRONTEND:latest; docker push $DOCKER_IMAGE_FRONTEND:latest; fi
+  only:
+    changes:
+      - $FRONTEND_DIR/**/*
+  dependencies:
+    - frontend_test
+
+# Deployment Jobs
+deploy_staging:
+  stage: deploy_staging
+  image: alpine:latest
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$STAGING_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST "cd /opt/deployment && ./deploy_bonus.sh staging $CI_COMMIT_SHORT_SHA"
+  environment:
+    name: staging
+    url: https://staging.bonus.example.com
+  only:
+    - develop
+  when: manual
+
+deploy_production:
+  stage: deploy_production
+  image: alpine:latest
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$PRODUCTION_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no $PRODUCTION_SSH_USER@$PRODUCTION_SSH_HOST "cd /opt/deployment && ./deploy_bonus.sh production $CI_COMMIT_SHORT_SHA"
+  environment:
+    name: production
+    url: https://bonus.example.com
+  only:
+    - main
+  when: manual

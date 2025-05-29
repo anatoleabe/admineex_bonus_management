@@ -1,0 +1,66 @@
+/* Basic styling for instance-form component */
+.instance-form-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  font-family: sans-serif;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.validation-error {
+  color: #c00;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+.form-actions {
+  margin-top: 20px;
+}
+
+.form-actions button {
+  margin-right: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.loading, .error-message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.loading {
+  background-color: #eef;
+  border: 1px solid #ccd;
+}
+
+.error-message {
+  background-color: #fdd;
+  border: 1px solid #fbb;
+  color: #c00;
+}
+

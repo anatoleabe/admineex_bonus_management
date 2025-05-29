@@ -1,0 +1,216 @@
+.allocation-view-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.filter-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.filter-group input, .filter-group select {
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.allocations-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.allocations-table th, .allocations-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.allocations-table th {
+  background-color: #fafafa;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.allocations-table th:hover {
+  background-color: #f0f0f0;
+}
+
+.allocations-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-eligible {
+  background-color: #e6f7ff;
+  color: #0070f3;
+}
+
+.status-adjusted {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+.status-excluded_rule, .status-excluded_manual {
+  background-color: #fff1f0;
+  color: #f5222d;
+}
+
+.status-paid {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.status-superseded {
+  background-color: #f5f5f5;
+  color: #8c8c8c;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-action {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  color: #595959;
+  transition: background-color 0.2s;
+}
+
+.btn-action:hover {
+  background-color: #d9d9d9;
+}
+
+.btn-action.btn-danger {
+  background-color: #fff1f0;
+  color: #f5222d;
+}
+
+.btn-action.btn-danger:hover {
+  background-color: #ffccc7;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-controls button:hover:not([disabled]) {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.pagination-controls button[disabled] {
+  color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #8c8c8c;
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-data-message p {
+  margin-bottom: 15px;
+  color: #8c8c8c;
+}
+
+.btn-secondary {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #595959;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #d9d9d9;
+}
+
+@media (max-width: 768px) {
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .allocations-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .actions-cell {
+    flex-direction: column;
+  }
+}

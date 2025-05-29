@@ -1,0 +1,144 @@
+<!-- allocation-view.html -->
+<div class="allocation-view-container">
+  <!-- Filtering Controls -->
+  <div class="filter-section">
+    <h4>Filter Allocations</h4>
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter" [(ngModel)]="filters.status" (change)="applyFiltersAndSort()">
+          <option value="">All Statuses</option>
+          <option value="eligible">Eligible</option>
+          <option value="adjusted">Adjusted</option>
+          <option value="excluded_rule">Excluded (Rule)</option>
+          <option value="excluded_manual">Excluded (Manual)</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="personnelFilter">Personnel</label>
+        <input 
+          type="text" 
+          id="personnelFilter" 
+          [(ngModel)]="filters.personnelName" 
+          (input)="applyFiltersAndSort()"
+          placeholder="Search by name or ID">
+      </div>
+      
+      <div class="filter-group">
+        <label for="minAmountFilter">Min Amount</label>
+        <input 
+          type="number" 
+          id="minAmountFilter" 
+          [(ngModel)]="filters.minAmount" 
+          (input)="applyFiltersAndSort()"
+          placeholder="Min">
+      </div>
+      
+      <div class="filter-group">
+        <label for="maxAmountFilter">Max Amount</label>
+        <input 
+          type="number" 
+          id="maxAmountFilter" 
+          [(ngModel)]="filters.maxAmount" 
+          (input)="applyFiltersAndSort()"
+          placeholder="Max">
+      </div>
+      
+      <button class="btn-secondary" (click)="resetFilters()">Reset Filters</button>
+    </div>
+  </div>
+
+  <!-- Allocations Table -->
+  <div *ngIf="filteredAllocations.length > 0; else noAllocations">
+    <table class="allocations-table">
+      <thead>
+        <tr>
+          <th (click)="sortBy('personnel.name')">
+            Personnel {{ getSortIcon('personnel.name') }}
+          </th>
+          <th (click)="sortBy('status')">
+            Status {{ getSortIcon('status') }}
+          </th>
+          <th (click)="sortBy('calculatedAmount')">
+            Calculated Amount {{ getSortIcon('calculatedAmount') }}
+          </th>
+          <th (click)="sortBy('finalAmount')">
+            Final Amount {{ getSortIcon('finalAmount') }}
+          </th>
+          <th>Adjustment Reason</th>
+          <th (click)="sortBy('version')">
+            Version {{ getSortIcon('version') }}
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let alloc of filteredAllocations">
+          <td>{{ alloc.personnel?.name || alloc.personnelId }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(alloc.status || '')">
+              {{ alloc.status }}
+            </span>
+          </td>
+          <td>{{ alloc.calculatedAmount | currency }}</td>
+          <td>{{ alloc.finalAmount | currency }}</td>
+          <td>{{ alloc.adjustmentReason || "N/A" }}</td>
+          <td>{{ alloc.version }}</td>
+          <td class="actions-cell">
+            <button 
+              class="btn-action" 
+              [routerLink]="['/bonus/allocations', alloc._id]">
+              View Details
+            </button>
+            
+            <button 
+              *ngIf="canAdjust(alloc)" 
+              class="btn-action" 
+              [routerLink]="['/bonus/allocations', alloc._id, 'adjust']">
+              Adjust
+            </button>
+            
+            <button 
+              *ngIf="canExclude(alloc)" 
+              class="btn-action btn-danger" 
+              [routerLink]="['/bonus/allocations', alloc._id, 'exclude']">
+              Exclude
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Pagination Controls -->
+    <div class="pagination-controls" *ngIf="totalItems > pageSize">
+      <button 
+        [disabled]="currentPage === 1" 
+        (click)="changePage(currentPage - 1)">
+        Previous
+      </button>
+      
+      <span class="page-info">
+        Page {{ currentPage }} of {{ Math.ceil(totalItems / pageSize) }}
+      </span>
+      
+      <button 
+        [disabled]="currentPage >= Math.ceil(totalItems / pageSize)" 
+        (click)="changePage(currentPage + 1)">
+        Next
+      </button>
+    </div>
+  </div>
+  
+  <ng-template #noAllocations>
+    <div class="no-data-message">
+      <p>No allocations found matching the current filters.</p>
+      <button *ngIf="filters.status || filters.personnelName || filters.minAmount || filters.maxAmount" 
+              class="btn-secondary" 
+              (click)="resetFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </ng-template>
+</div>

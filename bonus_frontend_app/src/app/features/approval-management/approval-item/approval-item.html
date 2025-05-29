@@ -1,0 +1,33 @@
+<div class="approval-item-card">
+  <h4>{{ item.type }}: {{ item.referencePeriod || item._id }}</h4>
+  <p><strong>Status:</strong> {{ item.status }}</p>
+  <p><strong>Submitted:</strong> {{ item.submittedAt | date:
+  "medium" }} by {{ item.submittedBy || "N/A" }}</p>
+
+  <!-- Display more item details if available -->
+  <div *ngIf="item.details" class="item-details">
+    <p><em>Template: {{ item.details.template?.name || item.details.templateId }}</em></p>
+    <!-- Add other relevant details -->
+  </div>
+
+  <div class="actions">
+    <button (click)="viewItemDetail()" [disabled]="isLoading">View Details</button>
+    <button class="approve-button" (click)="approve()" [disabled]="isLoading">Approve</button>
+    <button class="reject-button" (click)="reject()" [disabled]="isLoading">Reject</button>
+  </div>
+
+  <!-- Rejection Comment Input -->
+  <div class="rejection-comment" *ngIf="!isLoading"> <!-- Hide when loading to prevent interaction -->
+    <textarea
+      [(ngModel)]="rejectionComment"
+      placeholder="Add rejection comment (optional)"
+      rows="2">
+    </textarea>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-overlay">Processing...</div>
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+</div>
+

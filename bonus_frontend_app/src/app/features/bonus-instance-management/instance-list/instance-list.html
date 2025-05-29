@@ -1,0 +1,53 @@
+<div class="instance-list-container">
+  <h2>Bonus Instances</h2>
+
+  <div class="actions">
+    <button routerLink="../create">Create New Instance</button> <!-- Assuming routing is set up -->
+    <button (click)="loadInstances()" [disabled]="isLoading">Refresh</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading instances...</div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && (instances$ | async) as instances">
+    <table *ngIf="instances.length > 0; else noInstances">
+      <thead>
+        <tr>
+          <th>Reference Period</th>
+          <th>Template</th>
+          <th>Status</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let instance of instances">
+          <td>{{ instance.referencePeriod }}</td>
+          <td>{{ instance.template?.name || instance.templateId }}</td> <!-- Display template name if populated -->
+          <td>{{ instance.status }}</td>
+          <td>{{ instance.createdAt | date:
+          'short' }}</td>
+          <td>
+            <button [routerLink]="["../detail", instance._id]">View Details</button>
+            <!-- Add Edit button if applicable -->
+            <!-- <button [routerLink]="["../edit", instance._id]">Edit</button> -->
+            <button
+              *ngIf="instance.status === 'draft' || instance.status === 'pending_generation'"
+              (click)="triggerGeneration(instance._id)"
+              [disabled]="isLoading"> <!-- Disable during any loading -->
+              Generate Allocations
+            </button>
+            <!-- Add more actions based on status (e.g., Approve, Reject, Cancel) -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noInstances>
+      <p>No bonus instances found.</p>
+    </ng-template>
+  </div>
+</div>
+

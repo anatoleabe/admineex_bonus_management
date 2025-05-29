@@ -1,0 +1,210 @@
+<!-- allocation-detail.html -->
+<div class="allocation-detail-container">
+  <div class="header-actions">
+    <button (click)="goBack()" class="btn-secondary">Back</button>
+    <h2>Allocation Details</h2>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading allocation details...</div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && allocation" class="allocation-content">
+    <!-- Basic Information Section -->
+    <div class="detail-section">
+      <h3>Basic Information</h3>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Personnel:</span>
+          <span class="value">{{ allocation.personnel?.name || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Status:</span>
+          <span class="value status-badge" [ngClass]="'status-' + allocation.status">{{ allocation.status }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Calculated Amount:</span>
+          <span class="value">{{ allocation.calculatedAmount | currency }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Final Amount:</span>
+          <span class="value">{{ allocation.finalAmount | currency }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Version:</span>
+          <span class="value">{{ allocation.version }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Created:</span>
+          <span class="value">{{ formatDate(allocation.createdAt) }}</span>
+        </div>
+        <div class="detail-item" *ngIf="allocation.adjustmentReason">
+          <span class="label">Adjustment Reason:</span>
+          <span class="value">{{ allocation.adjustmentReason }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculation Inputs Section -->
+    <div class="detail-section">
+      <h3>Calculation Inputs</h3>
+      <div class="detail-grid" *ngIf="allocation.calculationInputs">
+        <div class="detail-item" *ngIf="allocation.calculationInputs.baseSalary !== undefined">
+          <span class="label">Base Salary:</span>
+          <span class="value">{{ allocation.calculationInputs.baseSalary | currency }}</span>
+        </div>
+        <div class="detail-item" *ngIf="allocation.calculationInputs.category">
+          <span class="label">Category:</span>
+          <span class="value">{{ allocation.calculationInputs.category }}</span>
+        </div>
+        <div class="detail-item" *ngIf="allocation.calculationInputs.grade">
+          <span class="label">Grade:</span>
+          <span class="value">{{ allocation.calculationInputs.grade }}</span>
+        </div>
+        <div class="detail-item" *ngIf="allocation.calculationInputs.status">
+          <span class="label">Status:</span>
+          <span class="value">{{ allocation.calculationInputs.status }}</span>
+        </div>
+        <div class="detail-item" *ngIf="allocation.calculationInputs.parts !== undefined">
+          <span class="label">Parts:</span>
+          <span class="value">{{ allocation.calculationInputs.parts }}</span>
+        </div>
+      </div>
+
+      <!-- Adjustment Factors -->
+      <div *ngIf="allocation.calculationInputs?.adjustmentFactors">
+        <h4>Adjustment Factors</h4>
+        <ul class="adjustment-factors">
+          <li *ngFor="let factor of getAdjustmentFactors(allocation.calculationInputs.adjustmentFactors)">
+            <span class="factor-name">{{ factor.name }}:</span>
+            <span class="factor-value">{{ factor.value }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Applied Rules -->
+      <div *ngIf="allocation.calculationInputs?.appliedRules?.length">
+        <h4>Applied Rules</h4>
+        <ul class="applied-rules">
+          <li *ngFor="let rule of allocation.calculationInputs.appliedRules">
+            <span class="rule-name">{{ rule.ruleName }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" *ngIf="!showAdjustmentForm && !showExclusionForm">
+      <button 
+        *ngIf="canAdjust()" 
+        (click)="toggleAdjustmentForm()" 
+        class="btn-primary">
+        Adjust Amount
+      </button>
+      <button 
+        *ngIf="canExclude()" 
+        (click)="toggleExclusionForm()" 
+        class="btn-danger">
+        Exclude Allocation
+      </button>
+    </div>
+
+    <!-- Adjustment Form -->
+    <div class="form-section" *ngIf="showAdjustmentForm">
+      <h3>Adjust Allocation</h3>
+      <form [formGroup]="adjustmentForm" (ngSubmit)="submitAdjustment()">
+        <div class="form-group">
+          <label for="finalAmount">Final Amount</label>
+          <input 
+            type="number" 
+            id="finalAmount" 
+            formControlName="finalAmount" 
+            class="form-control"
+            [ngClass]="{'invalid': adjustmentForm.get('finalAmount')?.invalid && adjustmentForm.get('finalAmount')?.touched}">
+          <div class="error-message" *ngIf="adjustmentForm.get('finalAmount')?.invalid && adjustmentForm.get('finalAmount')?.touched">
+            <span *ngIf="adjustmentForm.get('finalAmount')?.errors?.['required']">Amount is required</span>
+            <span *ngIf="adjustmentForm.get('finalAmount')?.errors?.['min']">Amount must be greater than or equal to 0</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="adjustmentReason">Reason for Adjustment</label>
+          <textarea 
+            id="adjustmentReason" 
+            formControlName="adjustmentReason" 
+            class="form-control"
+            [ngClass]="{'invalid': adjustmentForm.get('adjustmentReason')?.invalid && adjustmentForm.get('adjustmentReason')?.touched}">
+          </textarea>
+          <div class="error-message" *ngIf="adjustmentForm.get('adjustmentReason')?.invalid && adjustmentForm.get('adjustmentReason')?.touched">
+            <span *ngIf="adjustmentForm.get('adjustmentReason')?.errors?.['required']">Reason is required</span>
+            <span *ngIf="adjustmentForm.get('adjustmentReason')?.errors?.['minlength']">Reason must be at least 5 characters</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="adjustmentForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Submitting...' : 'Submit Adjustment' }}
+          </button>
+          <button type="button" class="btn-secondary" (click)="toggleAdjustmentForm()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Exclusion Form -->
+    <div class="form-section" *ngIf="showExclusionForm">
+      <h3>Exclude Allocation</h3>
+      <form [formGroup]="exclusionForm" (ngSubmit)="submitExclusion()">
+        <div class="form-group">
+          <label for="reason">Reason for Exclusion</label>
+          <textarea 
+            id="reason" 
+            formControlName="reason" 
+            class="form-control"
+            [ngClass]="{'invalid': exclusionForm.get('reason')?.invalid && exclusionForm.get('reason')?.touched}">
+          </textarea>
+          <div class="error-message" *ngIf="exclusionForm.get('reason')?.invalid && exclusionForm.get('reason')?.touched">
+            <span *ngIf="exclusionForm.get('reason')?.errors?.['required']">Reason is required</span>
+            <span *ngIf="exclusionForm.get('reason')?.errors?.['minlength']">Reason must be at least 5 characters</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-danger" [disabled]="exclusionForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Submitting...' : 'Confirm Exclusion' }}
+          </button>
+          <button type="button" class="btn-secondary" (click)="toggleExclusionForm()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Version History Section -->
+    <div class="detail-section" *ngIf="allocationHistory.length > 0">
+      <h3>Version History</h3>
+      <div class="version-timeline">
+        <div class="version-item" *ngFor="let version of allocationHistory">
+          <div class="version-header">
+            <span class="version-number">Version {{ version.version }}</span>
+            <span class="version-status status-badge" [ngClass]="'status-' + version.status">{{ version.status }}</span>
+            <span class="version-date">{{ formatDate(version.createdAt) }}</span>
+          </div>
+          <div class="version-details">
+            <div class="version-detail">
+              <span class="label">Final Amount:</span>
+              <span class="value">{{ version.finalAmount | currency }}</span>
+            </div>
+            <div class="version-detail" *ngIf="version.adjustmentReason">
+              <span class="label">Reason:</span>
+              <span class="value">{{ version.adjustmentReason }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

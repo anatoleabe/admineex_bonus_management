@@ -1,0 +1,269 @@
+# Monitoring and Logging Configuration for Bonus Management System
+
+# This file contains configuration for setting up monitoring, logging, and alerting
+# for the Bonus Management System in production environment
+
+# Prometheus Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      
+    scrape_configs:
+      - job_name: 'bonus-backend'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['bonus-backend:3000']
+            labels:
+              service: 'bonus-management'
+              component: 'backend'
+              
+      - job_name: 'bonus-frontend'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['bonus-frontend:80']
+            labels:
+              service: 'bonus-management'
+              component: 'frontend'
+              
+      - job_name: 'node-exporter'
+        static_configs:
+          - targets: ['node-exporter:9100']
+            labels:
+              service: 'bonus-management'
+              component: 'host'
+              
+      - job_name: 'mongodb-exporter'
+        static_configs:
+          - targets: ['mongodb-exporter:9216']
+            labels:
+              service: 'bonus-management'
+              component: 'database'
+
+---
+# Grafana Dashboard Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+data:
+  bonus-system-overview.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Bonus Management System Overview",
+        "tags": ["bonus-management"],
+        "timezone": "browser",
+        "schemaVersion": 16,
+        "version": 0,
+        "refresh": "5s",
+        "panels": [
+          {
+            "title": "System Health",
+            "type": "stat",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "up{service=\"bonus-management\"}",
+                "legendFormat": "{{component}}"
+              }
+            ]
+          },
+          {
+            "title": "API Request Rate",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total{service=\"bonus-management\",component=\"backend\"}[5m])) by (status_code)",
+                "legendFormat": "{{status_code}}"
+              }
+            ]
+          },
+          {
+            "title": "API Response Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=\"bonus-management\",component=\"backend\"}[5m])) by (le, handler))",
+                "legendFormat": "{{handler}} (p95)"
+              }
+            ]
+          },
+          {
+            "title": "Memory Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "process_resident_memory_bytes{service=\"bonus-management\"}",
+                "legendFormat": "{{component}}"
+              }
+            ]
+          },
+          {
+            "title": "CPU Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(process_cpu_seconds_total{service=\"bonus-management\"}[5m])",
+                "legendFormat": "{{component}}"
+              }
+            ]
+          },
+          {
+            "title": "MongoDB Operations",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(mongodb_op_counters_total[5m])",
+                "legendFormat": "{{type}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+---
+# Alerting Rules
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alerts
+data:
+  alerts.yml: |
+    groups:
+      - name: bonus-management-alerts
+        rules:
+          - alert: ServiceDown
+            expr: up{service="bonus-management"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Service {{ $labels.component }} is down"
+              description: "{{ $labels.component }} has been down for more than 1 minute."
+              
+          - alert: HighResponseTime
+            expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="bonus-management",component="backend"}[5m])) by (le)) > 2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High API response time"
+              description: "95th percentile of response time is above 2 seconds for 5 minutes."
+              
+          - alert: HighErrorRate
+            expr: sum(rate(http_requests_total{service="bonus-management",component="backend",status_code=~"5.."}[5m])) / sum(rate(http_requests_total{service="bonus-management",component="backend"}[5m])) > 0.05
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High error rate"
+              description: "Error rate is above 5% for 5 minutes."
+              
+          - alert: HighMemoryUsage
+            expr: process_resident_memory_bytes{service="bonus-management"} / 1024 / 1024 > 1024
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory usage"
+              description: "{{ $labels.component }} is using more than 1GB of memory for 5 minutes."
+              
+          - alert: HighCPUUsage
+            expr: rate(process_cpu_seconds_total{service="bonus-management"}[5m]) > 0.8
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage"
+              description: "{{ $labels.component }} is using more than 80% CPU for 5 minutes."
+
+---
+# ELK Stack Configuration for Logging
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+      - type: log
+        enabled: true
+        paths:
+          - /var/log/bonus-app/*.log
+        fields:
+          service: bonus-management
+        fields_under_root: true
+        json.keys_under_root: true
+        json.add_error_key: true
+        
+    processors:
+      - add_host_metadata: ~
+      - add_cloud_metadata: ~
+      
+    output.elasticsearch:
+      hosts: ["elasticsearch:9200"]
+      index: "bonus-management-%{+yyyy.MM.dd}"
+      
+    setup.template.name: "bonus-management"
+    setup.template.pattern: "bonus-management-*"
+    setup.ilm.enabled: true
+    setup.ilm.rollover_alias: "bonus-management"
+    setup.ilm.pattern: "{now/d}-000001"
+
+---
+# Kibana Dashboard Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-dashboards
+data:
+  bonus-logs-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "Bonus Management Logs",
+        "hits": 0,
+        "description": "Dashboard for monitoring Bonus Management System logs",
+        "panelsJSON": "[{\"type\":\"search\",\"id\":\"bonus-management-search\",\"size_x\":12,\"size_y\":3,\"col\":1,\"row\":1,\"columns\":[\"level\",\"message\",\"service\",\"component\"],\"sort\":[\"@timestamp\",\"desc\"]},{\"type\":\"visualization\",\"id\":\"bonus-management-errors\",\"size_x\":6,\"size_y\":3,\"col\":1,\"row\":4},{\"type\":\"visualization\",\"id\":\"bonus-management-response-times\",\"size_x\":6,\"size_y\":3,\"col\":7,\"row\":4}]",
+        "optionsJSON": "{\"darkTheme\":false}",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[{\"query\":{\"query_string\":{\"query\":\"service:bonus-management\",\"analyze_wildcard\":true}}}]}"
+        }
+      }
+    }
+
+---
+# Node.js APM Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodejs-apm-config
+data:
+  apm.js: |
+    // APM Agent Configuration
+    const apm = require('elastic-apm-node').start({
+      serviceName: 'bonus-management-backend',
+      serverUrl: process.env.APM_SERVER_URL || 'http://apm-server:8200',
+      environment: process.env.NODE_ENV || 'production',
+      logLevel: 'info',
+      captureBody: 'errors',
+      captureErrorLogStackTraces: 'always',
+      metricsInterval: '30s',
+      transactionSampleRate: 1.0
+    });
+    
+    module.exports = apm;

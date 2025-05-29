@@ -1,0 +1,25 @@
+<div class="approval-queue-container">
+  <h2>Approval Queue</h2>
+
+  <button (click)="loadQueue()" [disabled]="isLoading">Refresh Queue</button>
+
+  <div *ngIf="isLoading" class="loading">Loading approval items...</div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && (approvalQueue$ | async) as queueItems">
+    <div *ngIf="queueItems.length > 0; else noItems">
+      <app-approval-item
+        *ngFor="let item of queueItems"
+        [item]="item"
+        (processed)="onItemProcessed($event)">
+      </app-approval-item>
+    </div>
+    <ng-template #noItems>
+      <p>No items currently awaiting your approval.</p>
+    </ng-template>
+  </div>
+</div>
+

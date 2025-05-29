@@ -1,0 +1,148 @@
+<!-- instance-detail.html -->
+<div class="instance-detail-container">
+  <div class="header-actions">
+    <button (click)="goBack()" class="btn-secondary">Back to List</button>
+    <button (click)="refreshData()" class="btn-secondary" [disabled]="isLoadingInstance || isLoadingAllocations">Refresh</button>
+  </div>
+
+  <div *ngIf="isLoadingInstance" class="loading">Loading instance details...</div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoadingInstance && instance" class="instance-content">
+    <!-- Instance Header -->
+    <div class="instance-header">
+      <h2>Bonus Instance: {{ instance.referencePeriod }}</h2>
+      <div class="status-badge" [ngClass]="getStatusClass(instance.status)">
+        {{ getStatusDisplayName(instance.status) }}
+      </div>
+    </div>
+
+    <!-- Basic Information Section -->
+    <div class="detail-section">
+      <h3>Basic Information</h3>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Template:</span>
+          <span class="value">{{ instance.template?.name || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Share Amount:</span>
+          <span class="value">{{ instance.shareAmount | currency }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Created At:</span>
+          <span class="value">{{ formatDate(instance.createdAt) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Generation Date:</span>
+          <span class="value">{{ formatDate(instance.generationDate) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Approval Date:</span>
+          <span class="value">{{ formatDate(instance.approvalDate) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Payment Date:</span>
+          <span class="value">{{ formatDate(instance.paymentDate) }}</span>
+        </div>
+        <div class="detail-item" *ngIf="instance.notes">
+          <span class="label">Notes:</span>
+          <span class="value">{{ instance.notes }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow Actions -->
+    <div class="workflow-actions" *ngIf="!isLoadingActions && !showActionForm">
+      <h3>Available Actions</h3>
+      <div *ngIf="Object.keys(allowedActions).length === 0" class="no-actions-message">
+        No actions available for the current status or your role.
+      </div>
+      <div class="action-buttons" *ngIf="Object.keys(allowedActions).length > 0">
+        <div *ngFor="let action of allowedActions | keyvalue" class="action-button-container">
+          <button 
+            (click)="showActionFormFor(action.key)" 
+            class="btn-workflow"
+            [ngClass]="{'btn-approve': action.key === 'approve', 'btn-reject': action.key === 'reject' || action.key === 'cancel'}">
+            {{ action.value.label }}
+          </button>
+          <span class="action-description">{{ action.value.description }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Form -->
+    <div class="form-section" *ngIf="showActionForm">
+      <h3>{{ allowedActions[currentAction]?.label || 'Perform Action' }}</h3>
+      <form [formGroup]="actionForm" (ngSubmit)="submitAction()">
+        <div class="form-group">
+          <label for="comments">Comments</label>
+          <textarea 
+            id="comments" 
+            formControlName="comments" 
+            class="form-control"
+            [ngClass]="{'invalid': actionForm.get('comments')?.invalid && actionForm.get('comments')?.touched}">
+          </textarea>
+          <div class="error-message" *ngIf="actionForm.get('comments')?.invalid && actionForm.get('comments')?.touched">
+            <span *ngIf="actionForm.get('comments')?.errors?.['required']">Comments are required</span>
+            <span *ngIf="actionForm.get('comments')?.errors?.['minlength']">Comments must be at least 5 characters</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="actionForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Submitting...' : 'Confirm' }}
+          </button>
+          <button type="button" class="btn-secondary" (click)="cancelActionForm()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Workflow History -->
+    <div class="detail-section" *ngIf="workflowHistory.length > 0">
+      <h3>Workflow History</h3>
+      <div class="workflow-timeline">
+        <div class="workflow-item" *ngFor="let entry of workflowHistory">
+          <div class="workflow-header">
+            <span class="workflow-action">{{ entry.action }}</span>
+            <span class="workflow-date">{{ formatDate(entry.timestamp) }}</span>
+          </div>
+          <div class="workflow-details">
+            <div class="workflow-detail">
+              <span class="label">From:</span>
+              <span class="value">{{ getStatusDisplayName(entry.fromStatus) }}</span>
+            </div>
+            <div class="workflow-detail">
+              <span class="label">To:</span>
+              <span class="value">{{ getStatusDisplayName(entry.toStatus) }}</span>
+            </div>
+            <div class="workflow-detail">
+              <span class="label">By:</span>
+              <span class="value">{{ entry.userName }}</span>
+            </div>
+            <div class="workflow-detail" *ngIf="entry.comments">
+              <span class="label">Comments:</span>
+              <span class="value">{{ entry.comments }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Allocations Section -->
+    <div class="allocations-section">
+      <h3>Allocations</h3>
+      <div *ngIf="isLoadingAllocations" class="loading">Loading allocations...</div>
+      
+      <app-allocation-view 
+        [allocations]="instance.allocations || []"
+        [instanceStatus]="instance.status || ''">
+      </app-allocation-view>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,146 @@
+<!-- summary-report.html -->
+<div class="report-container">
+  <h2>Summary Report</h2>
+  
+  <!-- Filter Form -->
+  <div class="filter-section">
+    <h3>Report Filters</h3>
+    <form [formGroup]="filterForm" (ngSubmit)="generateReport()">
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label for="templateId">Template</label>
+          <select id="templateId" formControlName="templateId" class="form-control">
+            <option *ngFor="let template of templates" [value]="template.id">{{ template.name }}</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status" class="form-control">
+            <option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate" formControlName="startDate" class="form-control">
+        </div>
+        
+        <div class="filter-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate" formControlName="endDate" class="form-control">
+        </div>
+        
+        <div class="filter-group">
+          <label for="referencePeriod">Reference Period</label>
+          <input type="text" id="referencePeriod" formControlName="referencePeriod" class="form-control" placeholder="e.g., Q1 2025">
+        </div>
+        
+        <div class="filter-group">
+          <label for="groupBy">Group By</label>
+          <select id="groupBy" formControlName="groupBy" class="form-control">
+            <option *ngFor="let option of groupByOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Generating...' : 'Generate Report' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="resetFilters()" [disabled]="isLoading">
+          Reset Filters
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <!-- Report Content -->
+  <div *ngIf="!isLoading && report" class="report-content">
+    <div class="report-header">
+      <h3>{{ report.groupBy | titlecase }} Summary</h3>
+      
+      <!-- Export Actions -->
+      <div class="export-actions">
+        <button 
+          class="btn-export" 
+          (click)="exportReport('csv')" 
+          [disabled]="isExporting">
+          Export CSV
+        </button>
+        <button 
+          class="btn-export" 
+          (click)="exportReport('excel')" 
+          [disabled]="isExporting">
+          Export Excel
+        </button>
+      </div>
+    </div>
+    
+    <!-- Export Status -->
+    <div *ngIf="isExporting || downloadUrl" class="export-status">
+      <div *ngIf="isExporting">
+        <span class="status-label">{{ exportStatus }}</span>
+        <div class="loading-spinner"></div>
+      </div>
+      <div *ngIf="exportError" class="error-message">
+        {{ exportError }}
+      </div>
+      <div *ngIf="downloadUrl" class="download-link">
+        <a [href]="downloadUrl" target="_blank" class="btn-download">Download Report</a>
+      </div>
+    </div>
+    
+    <!-- Chart Visualization -->
+    <div class="chart-container" *ngIf="chartData">
+      <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+    </div>
+    
+    <!-- Summary Table -->
+    <div class="table-container">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>{{ report.groupBy | titlecase }}</th>
+            <th>Count</th>
+            <th>Total Amount</th>
+            <th>Average Amount</th>
+            <th>Min Amount</th>
+            <th>Max Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of report.data">
+            <td>{{ item.groupLabel }}</td>
+            <td>{{ item.count }}</td>
+            <td>{{ formatCurrency(item.totalAmount) }}</td>
+            <td>{{ formatCurrency(item.avgAmount) }}</td>
+            <td>{{ formatCurrency(item.minAmount) }}</td>
+            <td>{{ formatCurrency(item.maxAmount) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><strong>TOTAL</strong></td>
+            <td><strong>{{ report.totals.count }}</strong></td>
+            <td><strong>{{ formatCurrency(report.totals.totalAmount) }}</strong></td>
+            <td><strong>{{ formatCurrency(report.totals.avgAmount) }}</strong></td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Generating report...</p>
+  </div>
+</div>

@@ -1,0 +1,141 @@
+<!-- dashboard.html -->
+<div class="dashboard-container">
+  <h2>Bonus Management Dashboard</h2>
+  
+  <!-- Filter Form -->
+  <div class="filter-section">
+    <h3>Dashboard Filters</h3>
+    <form [formGroup]="filterForm" (ngSubmit)="loadDashboard()">
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label for="templateId">Template</label>
+          <select id="templateId" formControlName="templateId" class="form-control">
+            <option *ngFor="let template of templates" [value]="template.id">{{ template.name }}</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate" formControlName="startDate" class="form-control">
+        </div>
+        
+        <div class="filter-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate" formControlName="endDate" class="form-control">
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Loading...' : 'Refresh Dashboard' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="resetFilters()" [disabled]="isLoading">
+          Reset Filters
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && metrics" class="dashboard-content">
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">Total Bonus Instances</div>
+        <div class="metric-value">{{ metrics.totalInstances }}</div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-title">Total Bonus Amount</div>
+        <div class="metric-value">{{ formatCurrency(metrics.totalAmount) }}</div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-title">Average Bonus Amount</div>
+        <div class="metric-value">{{ formatCurrency(metrics.averageAmount) }}</div>
+      </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <!-- Status Distribution Chart -->
+      <div class="chart-card">
+        <h3>Status Distribution</h3>
+        <div class="chart-container" *ngIf="statusChartData">
+          <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions"></p-chart>
+        </div>
+      </div>
+      
+      <!-- Timeline Chart -->
+      <div class="chart-card">
+        <h3>Bonus Distribution Over Time</h3>
+        <div class="chart-container" *ngIf="timelineChartData">
+          <p-chart type="line" [data]="timelineChartData" [options]="timelineChartOptions"></p-chart>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Status Table -->
+    <div class="status-table-card">
+      <h3>Status Breakdown</h3>
+      <div class="table-container">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+              <th>Amount</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of metrics.statusDistribution">
+              <td>
+                <span class="status-badge" [style.background-color]="statusColors[item.status]">
+                  {{ reportingService.formatStatus(item.status) }}
+                </span>
+              </td>
+              <td>{{ item.count }}</td>
+              <td>{{ formatCurrency(item.amount) }}</td>
+              <td>{{ (item.count / metrics.totalInstances * 100).toFixed(1) }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="quick-links-card">
+      <h3>Quick Reports</h3>
+      <div class="quick-links">
+        <a routerLink="/reporting/summary" class="quick-link">
+          <i class="fa fa-chart-pie"></i>
+          Summary Reports
+        </a>
+        <a routerLink="/reporting/detailed" class="quick-link">
+          <i class="fa fa-table"></i>
+          Detailed Reports
+        </a>
+        <a routerLink="/reporting/detailed?reportType=adjustments" class="quick-link">
+          <i class="fa fa-edit"></i>
+          Adjustment Reports
+        </a>
+        <a routerLink="/reporting/detailed?reportType=workflow" class="quick-link">
+          <i class="fa fa-history"></i>
+          Workflow History
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading dashboard...</p>
+  </div>
+</div>

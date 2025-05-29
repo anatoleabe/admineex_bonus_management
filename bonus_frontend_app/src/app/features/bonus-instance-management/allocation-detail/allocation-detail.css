@@ -1,0 +1,277 @@
+.allocation-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-actions h2 {
+  margin-left: 20px;
+  margin-bottom: 0;
+}
+
+.detail-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.value {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-eligible {
+  background-color: #e6f7ff;
+  color: #0070f3;
+}
+
+.status-adjusted {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+.status-excluded_rule, .status-excluded_manual {
+  background-color: #fff1f0;
+  color: #f5222d;
+}
+
+.status-paid {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.status-superseded {
+  background-color: #f5f5f5;
+  color: #8c8c8c;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.form-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-control.invalid {
+  border-color: #f5222d;
+}
+
+.error-message {
+  color: #f5222d;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary, .btn-secondary, .btn-danger {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #1890ff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #40a9ff;
+}
+
+.btn-primary:disabled {
+  background-color: #bae7ff;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #595959;
+}
+
+.btn-secondary:hover {
+  background-color: #d9d9d9;
+}
+
+.btn-secondary:disabled {
+  background-color: #f5f5f5;
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #ff7875;
+}
+
+.btn-danger:disabled {
+  background-color: #ffccc7;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #8c8c8c;
+}
+
+.version-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.version-item {
+  border-left: 3px solid #1890ff;
+  padding-left: 15px;
+  position: relative;
+}
+
+.version-item::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 0;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #1890ff;
+}
+
+.version-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.version-number {
+  font-weight: 600;
+}
+
+.version-date {
+  color: #8c8c8c;
+  font-size: 0.9rem;
+}
+
+.version-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.adjustment-factors, .applied-rules {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.adjustment-factors li, .applied-rules li {
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.factor-name, .rule-name {
+  font-weight: 500;
+  margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions h2 {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}

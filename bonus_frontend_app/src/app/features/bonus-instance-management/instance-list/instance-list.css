@@ -1,0 +1,55 @@
+/* Basic styling for instance-list component */
+.instance-list-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.actions {
+  margin-bottom: 15px;
+}
+
+.actions button {
+  margin-right: 10px;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+thead {
+  background-color: #f4f4f4;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+td button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.loading, .error-message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.loading {
+  background-color: #eef;
+  border: 1px solid #ccd;
+}
+
+.error-message {
+  background-color: #fdd;
+  border: 1px solid #fbb;
+  color: #c00;
+}
+
