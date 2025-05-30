@@ -1,0 +1,44 @@
+# Node modules
+bonus_app_backend/node_modules/
+bonus_frontend_app/node_modules/
+
+# Logs
+bonus_app_backend/logs/
+bonus_app_backend/*.log
+bonus_frontend_app/logs/
+bonus_frontend_app/*.log
+
+# Dependency directories
+bonus_app_backend/package-lock.json
+bonus_frontend_app/package-lock.json
+bonus_app_backend/yarn.lock
+bonus_frontend_app/yarn.lock
+
+# Build output
+bonus_app_backend/dist/
+bonus_app_backend/build/
+bonus_frontend_app/dist/
+bonus_frontend_app/build/
+
+# Environment files
+bonus_app_backend/.env
+bonus_frontend_app/.env
+
+# IDE and OS files
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Coverage
+bonus_app_backend/coverage/
+bonus_frontend_app/coverage/
+
+# Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Angular specific
+bonus_frontend_app/.angular/cache/
+

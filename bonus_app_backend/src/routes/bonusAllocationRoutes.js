@@ -7,7 +7,7 @@ const BonusAllocationController = require("../controllers/BonusAllocationControl
 router.get("/", BonusAllocationController.getAllocations);
 
 // GET /api/bonus/allocations/:id
-router.get("/:id", BonusAllocationController.getAllocationById);
+router.get("/:id", BonusAllocationController.getAllocation);
 
 // PUT /api/bonus/allocations/:id (for adjustments)
 router.put("/:id", BonusAllocationController.updateAllocation);

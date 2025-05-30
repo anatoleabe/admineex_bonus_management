@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { AuthService } from "../../core/auth/auth"; // Adjust path as needed
-import { BonusInstance } from "../bonus-instance-management/services/instance"; // Import related model
+import { AuthService } from "../../../core/auth/auth"; // Adjust path as needed
+import { BonusInstance } from "../../bonus-instance-management/services/instance"; // Import related model
 
 // Define an interface for an Approval Item (could be a BonusInstance or other entity)
 // This might need refinement based on actual backend API response
