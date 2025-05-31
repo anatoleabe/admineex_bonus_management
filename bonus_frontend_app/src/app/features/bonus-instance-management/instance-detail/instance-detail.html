@@ -64,7 +64,7 @@
       <div class="action-buttons" *ngIf="Object.keys(allowedActions).length > 0">
         <div *ngFor="let action of allowedActions | keyvalue" class="action-button-container">
           <button 
-            (click)="showActionFormFor(action.key)" 
+            (click)="showActionFormFor(action.key)"
             class="btn-workflow"
             [ngClass]="{'btn-approve': action.key === 'approve', 'btn-reject': action.key === 'reject' || action.key === 'cancel'}">
             {{ action.value.label }}
@@ -76,13 +76,13 @@
 
     <!-- Action Form -->
     <div class="form-section" *ngIf="showActionForm">
-      <h3>{{ allowedActions[currentAction]?.label || 'Perform Action' }}</h3>
+      <h3>{{ allowedActions[currentAction].label || 'Perform Action' }}</h3>
       <form [formGroup]="actionForm" (ngSubmit)="submitAction()">
         <div class="form-group">
           <label for="comments">Comments</label>
-          <textarea 
-            id="comments" 
-            formControlName="comments" 
+          <textarea
+            id="comments"
+            formControlName="comments"
             class="form-control"
             [ngClass]="{'invalid': actionForm.get('comments')?.invalid && actionForm.get('comments')?.touched}">
           </textarea>
@@ -91,7 +91,7 @@
             <span *ngIf="actionForm.get('comments')?.errors?.['minlength']">Comments must be at least 5 characters</span>
           </div>
         </div>
-        
+
         <div class="form-actions">
           <button type="submit" class="btn-primary" [disabled]="actionForm.invalid || isSubmitting">
             {{ isSubmitting ? 'Submitting...' : 'Confirm' }}
@@ -138,11 +138,12 @@
     <div class="allocations-section">
       <h3>Allocations</h3>
       <div *ngIf="isLoadingAllocations" class="loading">Loading allocations...</div>
-      
-      <app-allocation-view 
+
+      <app-allocation-view
         [allocations]="instance.allocations || []"
         [instanceStatus]="instance.status || ''">
       </app-allocation-view>
     </div>
   </div>
 </div>
+

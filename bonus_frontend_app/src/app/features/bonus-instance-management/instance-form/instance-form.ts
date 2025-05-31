@@ -45,7 +45,7 @@ export class InstanceFormComponent implements OnInit {
         if (this.instanceId) {
           this.isEditMode = true;
           this.isLoading = true;
-          return this.instanceService.getInstanceById(this.instanceId);
+          return this.instanceService.getInstance(this.instanceId);
         } else {
           this.isEditMode = false;
           return of(null);
@@ -88,7 +88,7 @@ export class InstanceFormComponent implements OnInit {
     operation.subscribe({
       next: (savedInstance) => {
         this.isLoading = false;
-        this.router.navigate(["/instances/detail", savedInstance._id]); // Navigate to detail view after save
+        this.router.navigate(["/instances", savedInstance._id]); // Navigate to detail view after save
       },
       error: (err) => {
         this.error = `Failed to save instance: ${err.message || "Unknown error"}`;

@@ -76,7 +76,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let alloc of filteredAllocations">
-          <td>{{ alloc.personnel?.name || alloc.personnelId }}</td>
+          <td>{{ alloc.personnelInfo.name || alloc.personnelId }}</td>
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(alloc.status || '')">
               {{ alloc.status }}

@@ -184,4 +184,17 @@ export class AllocationDetailComponent implements OnInit {
     // Usually same conditions as adjustment
     return this.canAdjust();
   }
+
+  // Add missing method for adjustment factors
+  getAdjustmentFactors(calculationInputs: any): any[] {
+    if (!calculationInputs || !calculationInputs.adjustmentFactors) {
+      return [];
+    }
+    
+    // Convert object to array of {name, value} pairs
+    return Object.entries(calculationInputs.adjustmentFactors).map(([name, value]) => ({
+      name,
+      value
+    }));
+  }
 }

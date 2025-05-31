@@ -26,7 +26,7 @@
     <div class="form-group">
       <label for="referencePeriod">Reference Period:</label>
       <input type="text" id="referencePeriod" formControlName="referencePeriod" required placeholder="e.g., 2024-Q1, FY2024">
-      <div *ngIf=\'instanceForm.get("referencePeriod")?.invalid && instanceForm.get("referencePeriod")?.touched\' class="validation-error">
+      <div *ngIf="instanceForm.get('referencePeriod')?.invalid && instanceForm.get('referencePeriod')?.touched" class="validation-error">
         Reference Period is required.
       </div>
     </div>

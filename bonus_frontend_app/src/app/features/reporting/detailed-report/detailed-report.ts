@@ -336,4 +336,19 @@ export class DetailedReportComponent implements OnInit {
         return 'N/A';
     }
   }
+
+  getReportTypeLabel(type?: string): string {
+    if (!type) return 'Detailed Report';
+    const found = this.reportTypes.find(t => t.value === type);
+    return found ? found.label : 'Detailed Report';
+  }
+
+  getReportTypeLabelSafe(): string {
+    const type = this.report?.reportType;
+    return this.getReportTypeLabel(type ?? '');
+  }
+
+  min(a: number, b: number): number {
+    return a < b ? a : b;
+  }
 }

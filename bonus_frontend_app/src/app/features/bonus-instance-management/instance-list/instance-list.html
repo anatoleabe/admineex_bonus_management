@@ -2,7 +2,7 @@
   <h2>Bonus Instances</h2>
 
   <div class="actions">
-    <button routerLink="../create">Create New Instance</button> <!-- Assuming routing is set up -->
+    <button routerLink="create">Create New Instance</button> <!-- Assuming routing is set up -->
     <button (click)="loadInstances()" [disabled]="isLoading">Refresh</button>
   </div>
 
@@ -26,12 +26,12 @@
       <tbody>
         <tr *ngFor="let instance of instances">
           <td>{{ instance.referencePeriod }}</td>
-          <td>{{ instance.template?.name || instance.templateId }}</td> <!-- Display template name if populated -->
+          <td>{{ instance.template.name || instance.templateId }}</td> <!-- Display template name if populated -->
           <td>{{ instance.status }}</td>
           <td>{{ instance.createdAt | date:
           'short' }}</td>
           <td>
-            <button [routerLink]="["../detail", instance._id]">View Details</button>
+            <button [routerLink]="['../detail', instance._id]">View Details</button>
             <!-- Add Edit button if applicable -->
             <!-- <button [routerLink]="["../edit", instance._id]">Edit</button> -->
             <button

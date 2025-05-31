@@ -41,8 +41,8 @@ export class DashboardComponent implements OnInit {
   };
 
   constructor(
-    private fb: FormBuilder,
-    private reportingService: ReportingService
+      private fb: FormBuilder,
+      protected reportingService: ReportingService
   ) {
     this.filterForm = this.fb.group({
       templateId: [''],
